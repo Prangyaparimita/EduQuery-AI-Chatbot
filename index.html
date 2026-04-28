@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>EduQuery AI</title>
+
+<!-- ✅ MOBILE RESPONSIVE -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    font-family: Arial;
+    background: url("{{ url_for('static', filename='bg.jpg') }}") no-repeat center;
+    background-size: cover;
+    display: flex;
+    justify-content: flex-end; /* 💻 Right side */
+    padding-right: 80px;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* 📱 MOBILE VIEW */
+@media (max-width: 768px) {
+    body {
+        justify-content: center; /* Center on mobile */
+        padding-right: 0;
+    }
+}
+
+/* CHAT CONTAINER */
+.chat-container {
+    width: 90%;
+    max-width: 450px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    overflow: hidden;
+}
+
+/* HEADER */
+.header {
+    background: #0b2c5f;
+    color: white;
+    padding: 12px;
+    text-align: center;
+    font-size: 18px;
+}
+
+/* CHAT BOX */
+.chat-box {
+    height: 350px;
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* MESSAGES */
+.message {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 10px;
+    max-width: 75%;
+    word-wrap: break-word;
+}
+
+.user {
+    background: #0b2c5f;
+    color: white;
+    align-self: flex-end;
+}
+
+.bot {
+    background: #e9edf5;
+    align-self: flex-start;
+}
+
+/* INPUT AREA */
+.input-area {
+    display: flex;
+    border-top: 1px solid #ccc;
+}
+
+input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 20px;
+    outline: none;
+}
+
+/* BUTTON */
+button {
+    background: #0b2c5f;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+/* QUICK BUTTONS */
+.quick-btns {
+    padding: 5px;
+    text-align: center;
+}
+
+.quick-btns button {
+    margin: 3px;
+    padding: 6px 10px;
+}
+
+/* DROPDOWN */
+select {
+    margin: 8px;
+    padding: 6px;
+    border-radius: 5px;
+    width: 80%;
+}
+
+/* TYPING */
+.typing {
+    font-style: italic;
+    color: gray;
+}
+
+/* SMALL MOBILE IMPROVEMENTS */
+@media (max-width: 500px) {
+    .chat-box {
+        height: 300px;
+    }
+
+    .header {
+        font-size: 16px;
+    }
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="chat-container">
+
+<div class="header">
+    🤖 EduQuery AI - Chandigarh University
+</div>
+
+<div id="chatBox" class="chat-box"></div>
+
+<!-- COURSE DROPDOWN -->
+<div style="text-align:center;">
+    <select id="courseSelect">
+        <option value="">Select Course</option>
+        <option value="mca">MCA</option>
+        <option value="btech">B.Tech</option>
+        <option value="mba">MBA</option>
+        <option value="bba">BBA</option>
+    </select>
+</div>
+
+<!-- QUICK BUTTONS -->
+<div class="quick-btns">
+    <button onclick="quick('exam')">Exam</button>
+    <button onclick="quick('fee')">Fees</button>
+    <button onclick="quick('placement')">Placement</button>
+</div>
+
+<div class="input-area">
+    <input type="text" id="userInput" placeholder="Ask about fees, exams, placements...">
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+</div>
+
+<script>
+
+let chatBox = document.getElementById("chatBox");
+
+// GREETING
+window.onload = function() {
+    chatBox.innerHTML = `
+    <div class='message bot'>
+    👋 Hello! I am EduQuery AI 🤖.<br>
+    How can I help you today?
+    </div>`;
+};
+
+function quick(text){
+    document.getElementById("userInput").value = text;
+    sendMessage();
+}
+
+function sendMessage() {
+    let input = document.getElementById("userInput").value;
+    let course = document.getElementById("courseSelect").value;
+
+    if(input.trim()=="") return;
+
+    if(course && !input.includes(course)){
+        input = input + " " + course;
+    }
+
+    chatBox.innerHTML += `<div class='message user'>${input}</div>`;
+
+    let typing = document.createElement("div");
+    typing.className = "message bot typing";
+    typing.innerText = "Typing...";
+    chatBox.appendChild(typing);
+
+    fetch("/chat", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({message:input})
+    })
+    .then(res=>res.json())
+    .then(data=>{
+        typing.remove();
+
+        setTimeout(()=>{
+            let response = data.response;
+
+            let botMsg = `<div class='message bot'>${response}`;
+
+            if(response.includes("learning")){
+                botMsg += `
+                <br><br>
+                <button onclick="connect()">📲 Request Callback</button>
+                `;
+            }
+
+            botMsg += `</div>`;
+
+            chatBox.innerHTML += botMsg;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+        },800);
+    });
+
+    document.getElementById("userInput").value="";
+}
+
+// ENTER KEY
+document.getElementById("userInput").addEventListener("keypress", function(e){
+    if(e.key==="Enter") sendMessage();
+});
+
+// CALLBACK
+function connect(){
+    chatBox.innerHTML +=
+    "<div class='message bot'>📲 Your request has been received! Our support team will contact you shortly.</div>";
+}
+
+</script>
+
+</body>
+</html>
