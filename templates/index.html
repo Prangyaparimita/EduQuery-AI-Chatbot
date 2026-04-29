@@ -3,65 +3,48 @@
 <head>
 <title>EduQuery AI</title>
 
-<!-- ✅ MOBILE RESPONSIVE -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
 body {
     font-family: Arial;
     background: url("{{ url_for('static', filename='bg.jpg') }}") no-repeat center;
     background-size: cover;
     display: flex;
-    justify-content: flex-end; /* 💻 Right side */
+    justify-content: flex-end;
     padding-right: 80px;
     align-items: center;
     height: 100vh;
-    margin: 0;
 }
 
-/* 📱 MOBILE VIEW */
-@media (max-width: 768px) {
-    body {
-        justify-content: center; /* Center on mobile */
-        padding-right: 0;
-    }
-}
-
-/* CHAT CONTAINER */
 .chat-container {
-    width: 90%;
-    max-width: 450px;
-    background: rgba(255,255,255,0.95);
+    width: 450px;
+    background: rgba(255,255,255,0.92);
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     overflow: hidden;
 }
 
-/* HEADER */
 .header {
     background: #0b2c5f;
     color: white;
-    padding: 12px;
+    padding: 10px;
     text-align: center;
-    font-size: 18px;
+    font-weight: bold;
 }
 
-/* CHAT BOX */
 .chat-box {
-    height: 350px;
+    height: 380px;
     padding: 10px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
 }
 
-/* MESSAGES */
 .message {
     padding: 10px;
     margin: 5px;
     border-radius: 10px;
     max-width: 75%;
-    word-wrap: break-word;
+    line-height: 1.5;
 }
 
 .user {
@@ -75,64 +58,48 @@ body {
     align-self: flex-start;
 }
 
-/* INPUT AREA */
 .input-area {
     display: flex;
     border-top: 1px solid #ccc;
+    padding: 6px;
+    gap: 6px;
 }
 
-input {
+.input-area input {
     flex: 1;
     padding: 10px;
-    border: none;
+    border: 1px solid #ccc;
     border-radius: 20px;
     outline: none;
 }
 
-/* BUTTON */
-button {
+.input-area button {
     background: #0b2c5f;
     color: white;
     border: none;
-    padding: 10px;
+    padding: 10px 18px;
+    border-radius: 20px;
     cursor: pointer;
-    border-radius: 6px;
 }
 
-/* QUICK BUTTONS */
 .quick-btns {
-    padding: 5px;
+    padding: 8px;
     text-align: center;
 }
 
 .quick-btns button {
-    margin: 3px;
-    padding: 6px 10px;
+    margin: 4px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    background: #0b2c5f;
+    color: white;
+    border: none;
+    cursor: pointer;
 }
 
-/* DROPDOWN */
-select {
-    margin: 8px;
-    padding: 6px;
-    border-radius: 5px;
-    width: 80%;
-}
-
-/* TYPING */
 .typing {
     font-style: italic;
     color: gray;
-}
-
-/* SMALL MOBILE IMPROVEMENTS */
-@media (max-width: 500px) {
-    .chat-box {
-        height: 300px;
-    }
-
-    .header {
-        font-size: 16px;
-    }
 }
 </style>
 
@@ -142,34 +109,24 @@ select {
 
 <div class="chat-container">
 
-<div class="header">
-    🤖 EduQuery AI - Chandigarh University
-</div>
+    <div class="header">
+        🤖 EduQuery AI - Chandigarh University
+    </div>
 
-<div id="chatBox" class="chat-box"></div>
+    <div id="chatBox" class="chat-box"></div>
 
-<!-- COURSE DROPDOWN -->
-<div style="text-align:center;">
-    <select id="courseSelect">
-        <option value="">Select Course</option>
-        <option value="mca">MCA</option>
-        <option value="btech">B.Tech</option>
-        <option value="mba">MBA</option>
-        <option value="bba">BBA</option>
-    </select>
-</div>
+    <!-- QUICK BUTTONS -->
+    <div class="quick-btns">
+        <button onclick="quick('exam')">📅 Exam</button>
+        <button onclick="quick('fees')">💰 Fees</button>
+        <button onclick="quick('placement')">💼 Placement</button>
+        <button onclick="quick('admission')">📋 Admission</button>
+    </div>
 
-<!-- QUICK BUTTONS -->
-<div class="quick-btns">
-    <button onclick="quick('exam')">Exam</button>
-    <button onclick="quick('fee')">Fees</button>
-    <button onclick="quick('placement')">Placement</button>
-</div>
-
-<div class="input-area">
-    <input type="text" id="userInput" placeholder="Ask about fees, exams, placements...">
-    <button onclick="sendMessage()">Send</button>
-</div>
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Type your question...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
 
 </div>
 
@@ -177,29 +134,32 @@ select {
 
 let chatBox = document.getElementById("chatBox");
 
-// GREETING
+// GREETING ON LOAD
 window.onload = function() {
     chatBox.innerHTML = `
     <div class='message bot'>
-    👋 Hello! I am EduQuery AI 🤖.<br>
-    How can I help you today?
+        👋 Hello! I am <b>EduQuery AI</b> 🤖<br><br>
+        I can help you with:<br>
+        🎓 <b>Courses</b> – MCA, B.Tech, MBA, BBA<br>
+        💰 <b>Fees</b><br>
+        📋 <b>Admissions</b><br>
+        📅 <b>Exam Schedule</b><br>
+        💼 <b>Placements</b><br>
+        🖥 <b>Course Mode</b> (Online / Regular / Distance)<br><br>
+        What would you like to know?
     </div>`;
 };
 
-function quick(text){
+// QUICK BUTTON
+function quick(text) {
     document.getElementById("userInput").value = text;
     sendMessage();
 }
 
+// SEND MESSAGE
 function sendMessage() {
-    let input = document.getElementById("userInput").value;
-    let course = document.getElementById("courseSelect").value;
-
-    if(input.trim()=="") return;
-
-    if(course && !input.includes(course)){
-        input = input + " " + course;
-    }
+    let input = document.getElementById("userInput").value.trim();
+    if (input === "") return;
 
     chatBox.innerHTML += `<div class='message user'>${input}</div>`;
 
@@ -207,49 +167,63 @@ function sendMessage() {
     typing.className = "message bot typing";
     typing.innerText = "Typing...";
     chatBox.appendChild(typing);
+    chatBox.scrollTop = chatBox.scrollHeight;
 
     fetch("/chat", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({message:input})
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: input })
     })
-    .then(res=>res.json())
-    .then(data=>{
+    .then(res => res.json())
+    .then(data => {
         typing.remove();
 
-        setTimeout(()=>{
-            let response = data.response;
+        setTimeout(() => {
+            let raw = data.response;
+            let hasCallback = raw.includes("##CALLBACK##");
+            let cleanResponse = raw.replace("##CALLBACK##", "");
 
-            let botMsg = `<div class='message bot'>${response}`;
+            let botDiv = document.createElement("div");
+            botDiv.className = "message bot";
+            botDiv.innerHTML = cleanResponse;
 
-            if(response.includes("learning")){
-                botMsg += `
-                <br><br>
-                <button onclick="connect()">📲 Request Callback</button>
-                `;
+            if (hasCallback) {
+                let br = document.createElement("br");
+                let btn = document.createElement("button");
+                btn.innerText = "📲 Request Callback";
+                btn.style.cssText = "margin-top:10px; padding:7px 14px; background:#0b2c5f; color:white; border:none; border-radius:8px; cursor:pointer;";
+                btn.onclick = function() {
+                    btn.disabled = true;
+                    btn.innerText = "✅ Request Sent";
+                    let confirm = document.createElement("div");
+                    confirm.className = "message bot";
+                    confirm.innerHTML = "📲 Your request has been received!<br>Our support team will contact you shortly. 😊";
+                    chatBox.appendChild(confirm);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                };
+                botDiv.appendChild(br);
+                botDiv.appendChild(btn);
             }
 
-            botMsg += `</div>`;
-
-            chatBox.innerHTML += botMsg;
+            chatBox.appendChild(botDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
-
-        },800);
+        }, 800);
+    })
+    .catch(() => {
+        typing.remove();
+        let errDiv = document.createElement("div");
+        errDiv.className = "message bot";
+        errDiv.innerText = "Something went wrong. Please try again.";
+        chatBox.appendChild(errDiv);
     });
 
-    document.getElementById("userInput").value="";
+    document.getElementById("userInput").value = "";
 }
 
 // ENTER KEY
-document.getElementById("userInput").addEventListener("keypress", function(e){
-    if(e.key==="Enter") sendMessage();
+document.getElementById("userInput").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") sendMessage();
 });
-
-// CALLBACK
-function connect(){
-    chatBox.innerHTML +=
-    "<div class='message bot'>📲 Your request has been received! Our support team will contact you shortly.</div>";
-}
 
 </script>
 
