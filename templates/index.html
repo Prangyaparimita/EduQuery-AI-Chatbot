@@ -3,20 +3,24 @@
 <head>
 <title>EduQuery AI</title>
 
+<!-- ✅ MOBILE FIX -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 body {
     font-family: Arial;
     background: url("{{ url_for('static', filename='bg.jpg') }}") no-repeat center;
     background-size: cover;
     display: flex;
-    justify-content: flex-end;
-    padding-right: 80px;
+    justify-content: center; /* ✅ FIXED */
+    padding: 10px; /* ✅ FIXED */
     align-items: center;
     height: 100vh;
 }
 
 .chat-container {
-    width: 450px;
+    width: 100%; /* ✅ FIXED */
+    max-width: 450px; /* ✅ FIXED */
     background: rgba(255,255,255,0.92);
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
@@ -100,6 +104,21 @@ body {
 .typing {
     font-style: italic;
     color: gray;
+}
+
+/* ✅ MOBILE OPTIMIZATION */
+@media (max-width: 600px) {
+    body {
+        height: auto;
+    }
+
+    .chat-container {
+        height: 95vh;
+    }
+
+    .chat-box {
+        height: 65vh;
+    }
 }
 </style>
 
