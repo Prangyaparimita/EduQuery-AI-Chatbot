@@ -43,7 +43,6 @@ init_db()
 # ✅ Home Page
 @app.route("/")
 def home():
-    # Always start fresh on every page load
     session.clear()
     return render_template("index.html")
 
@@ -57,25 +56,21 @@ def chat():
         if not user_input:
             return jsonify({"response": "Please type a message!"})
 
-        # Store query in DB
         conn = sqlite3.connect("chatbot.db")
         cursor = conn.cursor()
         cursor.execute("INSERT INTO queries (query) VALUES (?)", (user_input,))
         conn.commit()
         conn.close()
 
-        # Restore memory from session into chatbot module
         import chatbot as chatbot_module
-        chatbot_module.current_course      = session.get("current_course", None)
+        chatbot_module.current_course = session.get("current_course", None)
         chatbot_module.awaiting_course_for = session.get("awaiting_course_for", None)
 
-        # Get response
         response = get_response(user_input)
 
-        # Save updated memory back to session
-        session["current_course"]      = chatbot_module.current_course
+        session["current_course"] = chatbot_module.current_course
         session["awaiting_course_for"] = chatbot_module.awaiting_course_for
-        session.modified = True  # force Flask to persist session changes
+        session.modified = True
 
         return jsonify({"response": response})
 
@@ -149,7 +144,6 @@ def dashboard():
     data = cursor.fetchall()
     conn.close()
 
-    # Return as formatted HTML instead of raw string
     rows = "".join(f"<tr><td>{q}</td><td>{c}</td></tr>" for q, c in data)
     return f"""
     <html><head><title>Dashboard</title>
@@ -161,6 +155,6 @@ def dashboard():
     </body></html>
     """
 
-# ✅ Run App
+# ✅ Run App (UPDATED ONLY THIS PART)
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
