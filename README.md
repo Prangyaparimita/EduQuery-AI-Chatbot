@@ -34,15 +34,12 @@ Other:
 - GitHub (version control)
 
 **How to Run**
-1. Install Python  
-2. Install Flask using: pip install flask  
-3. Run the application: python app.py  
-4. Open browser: http://127.0.0.1:5000/
+(https://eduquery-ai-chatbot.onrender.com/)
+As it is deployed in render website so it will take 1min to load as its a free service.
 
 **Note**
 The database is automatically created when the application runs and stores user queries.
 
 Future Improvements
-- Advanced AI chatbot using NLP/ML
 - Voice-based interaction
 - Cloud deployment
