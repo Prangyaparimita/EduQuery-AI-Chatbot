@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Panel</title>
+<style>
+body { font-family: Arial; padding: 20px; background: #f4f6f9; }
+h2, h3 { color: #0b2c5f; }
+
+.form-box {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    max-width: 600px;
+    margin-bottom: 30px;
+}
+
+label { font-weight: bold; font-size: 14px; }
+
+input, textarea {
+    width: 100%;
+    margin: 6px 0 14px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+textarea { height: 80px; resize: vertical; }
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: white;
+}
+
+.btn-add    { background: #0b2c5f; }
+.btn-edit   { background: #f0ad4e; }
+.btn-delete { background: #d9534f; }
+.btn-save   { background: #5cb85c; }
+.btn-cancel { background: #aaa; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+td, th {
+    border: 1px solid #e0e0e0;
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 14px;
+    vertical-align: top;
+}
+
+th { background: #0b2c5f; color: white; }
+tr:nth-child(even) { background: #f9f9f9; }
+
+/* Modal overlay */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+}
+.modal-overlay.active { display: flex; }
+
+.modal-box {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 520px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.modal-box h3 { color: #0b2c5f; margin-top: 0; }
+</style>
+</head>
+
+<body>
+
+<h2>⚙️ Admin Panel – Manage Responses</h2>
+
+<!-- ADD FORM -->
+<div class="form-box">
+    <h3>➕ Add New Response</h3>
+    <form method="POST" action="/admin">
+        <label>Intent (e.g. fees, exam, placement, admission)</label>
+        <input type="text" name="intent" placeholder="e.g. placement" required>
+
+        <label>Response Text</label>
+        <textarea name="response" placeholder="Enter the response message" required></textarea>
+
+        <button type="submit" class="btn btn-add">Add Response</button>
+    </form>
+</div>
+
+<!-- RESPONSES TABLE -->
+<h3>📋 Existing Responses</h3>
+
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Intent</th>
+        <th>Response</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for row in data %}
+    <tr>
+        <td>{{ row[0] }}</td>
+        <td>{{ row[1] }}</td>
+        <td>{{ row[2] }}</td>
+        <td>
+            <!-- Store values safely in data attributes — no JS escaping issues -->
+            <button class="btn btn-edit"
+                    data-id="{{ row[0] }}"
+                    data-intent="{{ row[1] }}"
+                    data-response="{{ row[2] }}"
+                    onclick="openEdit(this)">✏️ Edit</button>
+            &nbsp;
+            <form method="POST" action="/admin/delete/{{ row[0] }}" style="display:inline"
+                  onsubmit="return confirm('Delete this response?')">
+                <button type="submit" class="btn btn-delete">🗑️ Delete</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal-box">
+        <h3>✏️ Edit Response</h3>
+        <form method="POST" id="editForm" action="">
+            <label>Intent</label>
+            <input type="text" name="intent" id="editIntent" required>
+
+            <label>Response Text</label>
+            <textarea name="response" id="editResponse" required></textarea>
+
+            <button type="submit" class="btn btn-save">💾 Save Changes</button>
+            &nbsp;
+            <button type="button" class="btn btn-cancel" onclick="closeEdit()">Cancel</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function openEdit(btn) {
+    // Read safely from data attributes — handles quotes, HTML, newlines correctly
+    var id       = btn.getAttribute("data-id");
+    var intent   = btn.getAttribute("data-intent");
+    var response = btn.getAttribute("data-response");
+
+    document.getElementById("editIntent").value   = intent;
+    document.getElementById("editResponse").value = response;
+    document.getElementById("editForm").action    = "/admin/edit/" + id;
+    document.getElementById("editModal").classList.add("active");
+}
+
+function closeEdit() {
+    document.getElementById("editModal").classList.remove("active");
+}
+
+// Close modal if user clicks outside the box
+document.getElementById("editModal").addEventListener("click", function(e) {
+    if (e.target === this) closeEdit();
+});
+</script>
+
+</body>
+</html>
