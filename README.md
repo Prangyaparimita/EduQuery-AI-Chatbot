@@ -34,6 +34,7 @@ Other:
 - GitHub (version control)
 
 **How to Run**
+Please click the link below to access the chatbot.
 (https://eduquery-ai-chatbot.onrender.com/)
 As it is deployed in render website so it will take 1min to load as its a free service.
 
