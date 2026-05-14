@@ -1,4 +1,4 @@
-**EduQuery AI – Smart Student Support System 🤖**
+**EduQuery AI – Smart Student Support System for Universities with Multi-Platform Acces 🤖**
 
 ****Description****
 EduQuery AI is an intelligent chatbot system designed to assist students with university-related queries such as exams, fees, admissions, and placements. The system uses a rule-based Artificial Intelligence (AI) approach to understand user input and provide accurate responses instantly.
