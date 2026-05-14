@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>EduQuery AI</title>
+
+<!-- ✅ MOBILE FIX -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    font-family: Arial;
+    background: url("{{ url_for('static', filename='bg.jpg') }}") no-repeat center;
+    background-size: cover;
+    display: flex;
+    justify-content: center; /* ✅ FIXED */
+    padding: 10px; /* ✅ FIXED */
+    align-items: center;
+    height: 100vh;
+}
+
+.chat-container {
+    width: 100%; /* ✅ FIXED */
+    max-width: 450px; /* ✅ FIXED */
+    background: rgba(255,255,255,0.92);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    overflow: hidden;
+}
+
+.header {
+    background: #0b2c5f;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.chat-box {
+    height: 380px;
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.message {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 10px;
+    max-width: 75%;
+    line-height: 1.5;
+}
+
+.user {
+    background: #0b2c5f;
+    color: white;
+    align-self: flex-end;
+}
+
+.bot {
+    background: #e9edf5;
+    align-self: flex-start;
+}
+
+.input-area {
+    display: flex;
+    border-top: 1px solid #ccc;
+    padding: 6px;
+    gap: 6px;
+}
+
+.input-area input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    outline: none;
+}
+
+.input-area button {
+    background: #0b2c5f;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.quick-btns {
+    padding: 8px;
+    text-align: center;
+}
+
+.quick-btns button {
+    margin: 4px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    background: #0b2c5f;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.typing {
+    font-style: italic;
+    color: gray;
+}
+
+/* ✅ MOBILE OPTIMIZATION */
+@media (max-width: 600px) {
+    body {
+        height: auto;
+    }
+
+    .chat-container {
+        height: 95vh;
+    }
+
+    .chat-box {
+        height: 65vh;
+    }
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="chat-container">
+
+    <div class="header">
+        🤖 EduQuery AI - Chandigarh University
+    </div>
+
+    <div id="chatBox" class="chat-box"></div>
+
+    <!-- QUICK BUTTONS -->
+    <div class="quick-btns">
+        <button onclick="quick('exam')">📅 Exam</button>
+        <button onclick="quick('fees')">💰 Fees</button>
+        <button onclick="quick('placement')">💼 Placement</button>
+        <button onclick="quick('admission')">📋 Admission</button>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Type your question...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+</div>
+
+<script>
+
+let chatBox = document.getElementById("chatBox");
+
+// GREETING ON LOAD
+window.onload = function() {
+    chatBox.innerHTML = `
+    <div class='message bot'>
+        👋 Hello! I am <b>EduQuery AI</b> 🤖<br><br>
+        I can help you with:<br>
+        🎓 <b>Courses</b> – MCA, B.Tech, MBA, BBA<br>
+        💰 <b>Fees</b><br>
+        📋 <b>Admissions</b><br>
+        📅 <b>Exam Schedule</b><br>
+        💼 <b>Placements</b><br>
+        🖥 <b>Course Mode</b> (Online / Regular / Distance)<br><br>
+        What would you like to know?
+    </div>`;
+};
+
+// QUICK BUTTON
+function quick(text) {
+    document.getElementById("userInput").value = text;
+    sendMessage();
+}
+
+// SEND MESSAGE
+function sendMessage() {
+    let input = document.getElementById("userInput").value.trim();
+    if (input === "") return;
+
+    chatBox.innerHTML += `<div class='message user'>${input}</div>`;
+
+    let typing = document.createElement("div");
+    typing.className = "message bot typing";
+    typing.innerText = "Typing...";
+    chatBox.appendChild(typing);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: input })
+    })
+    .then(res => res.json())
+    .then(data => {
+        typing.remove();
+
+        setTimeout(() => {
+            let raw = data.response;
+            let hasCallback = raw.includes("##CALLBACK##");
+            let cleanResponse = raw.replace("##CALLBACK##", "");
+
+            let botDiv = document.createElement("div");
+            botDiv.className = "message bot";
+            botDiv.innerHTML = cleanResponse;
+
+            if (hasCallback) {
+                let br = document.createElement("br");
+                let btn = document.createElement("button");
+                btn.innerText = "📲 Request Callback";
+                btn.style.cssText = "margin-top:10px; padding:7px 14px; background:#0b2c5f; color:white; border:none; border-radius:8px; cursor:pointer;";
+                btn.onclick = function() {
+                    btn.disabled = true;
+                    btn.innerText = "✅ Request Sent";
+                    let confirm = document.createElement("div");
+                    confirm.className = "message bot";
+                    confirm.innerHTML = "📲 Your request has been received!<br>Our support team will contact you shortly. 😊";
+                    chatBox.appendChild(confirm);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                };
+                botDiv.appendChild(br);
+                botDiv.appendChild(btn);
+            }
+
+            chatBox.appendChild(botDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }, 800);
+    })
+    .catch(() => {
+        typing.remove();
+        let errDiv = document.createElement("div");
+        errDiv.className = "message bot";
+        errDiv.innerText = "Something went wrong. Please try again.";
+        chatBox.appendChild(errDiv);
+    });
+
+    document.getElementById("userInput").value = "";
+}
+
+// ENTER KEY
+document.getElementById("userInput").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") sendMessage();
+});
+
+</script>
+
+</body>
+</html>
