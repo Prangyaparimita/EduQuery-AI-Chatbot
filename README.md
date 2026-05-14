@@ -36,6 +36,7 @@ Frontend:
 **How to Run:**
 -Please click the link given to access the chatbot.
 (https://eduquery-ai-chatbot.onrender.com/)
+Admin site -https://eduquery-ai-chatbot.onrender.com/admin
 As it is deployed in render website so it will take 1min to load as its a free service.
 
 **Note**
